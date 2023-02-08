@@ -12,6 +12,7 @@ import {
 } from 'react-native';
 import {
   DatePickerAndroid,
+  DateTimePickerAndroid,
   TimePickerAndroid,
   DatePickerIOS
 } from '@react-native-community/datetimepicker';
@@ -199,10 +200,22 @@ class DatePicker extends Component {
     }, 200);
   }
 
-  onDatePicked({action, year, month, day}) {
+  onDatePickedold({action, year, month, day}) {
     if (action !== DatePickerAndroid.dismissedAction) {
       this.setState({
         date: new Date(year, month, day)
+      });
+      this.datePicked();
+    } else {
+      this.onPressCancel();
+    }
+  }
+
+  onDatePicked(action, selectedDate) {
+    if (action.type !== 'dismissed') {
+      let date = new Date(selectedDate);
+      this.setState({
+        date: new Date(date.getFullYear(), date.getMonth(), date.getDate())
       });
       this.datePicked();
     } else {
@@ -269,12 +282,13 @@ class DatePicker extends Component {
 
       // 选日期
       if (mode === 'date') {
-        DatePickerAndroid.open({
-          date: this.state.date,
-          minDate: minDate && this.getDate(minDate),
-          maxDate: maxDate && this.getDate(maxDate),
-          mode: androidMode
-        }).then(this.onDatePicked);
+        DateTimePickerAndroid.open({
+          value: this.state.date,
+          minimumDate: minDate && this.getDate(minDate),
+          maximumDate: maxDate && this.getDate(maxDate),
+          onChange: this.onDatePicked,
+          mode
+        });
       } else if (mode === 'time') {
         // 选时间
 
